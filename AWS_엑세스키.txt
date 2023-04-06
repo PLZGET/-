@@ -1,0 +1,26 @@
+●AWS 액세스 아이디 비밀번호
+AKIAZAW2676E7HLHY6NZ
+uY6BgXr3Bf6laJ8MmDl+x56JBFr5yTZONtt20CfX
+
+- 터미널 준비하기 - 
+mkdir deploy
+cp app.py deploy/application.py
+cp -r templates deploy/templates
+pip freeze > deploy/requirements.txt
+cd deploy
+
+- application.py 세팅하기 - 
+application = app = Flask(__name__)
+app.run()
+
+- 패키지 설치하기 - 
+pip install awsebcli
+
+- 보안 자격증명 - 
+eb init
+
+- 초기 설정 - 
+eb create myweb
+
+- 코드 수정 & 업데이트 - 
+eb deploy myweb 

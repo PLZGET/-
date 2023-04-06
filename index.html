@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 전시</title>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.4.min.js"></script>
+    <style>
+        html,
+        body,
+        h1,
+        h2,
+        h3,
+        p,
+        a,
+        span {
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrap {
+            max-width: 1050px;
+            width: 100%;
+            margin: auto;
+        }
+
+        .card {
+            width: 320px;
+            height: 340px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            margin: 16px 8px;
+            border: 1px solid black;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 2px 2px 5px 0px grey;
+        }
+
+        .card-wrap {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .card-image {
+            background-position: center;
+            background-size: cover;
+
+            width: 100%;
+            height: 200px;
+        }
+
+        .card>span {
+            margin: 8px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .period {
+            color: yellowgreen;
+            font-size: 14px;
+        }
+
+        .tags {
+            color: gray;
+            font-size: 14px;
+            word-break: keep-all;
+        }
+
+        .url-form {
+            align-items: center;
+            justify-content: space-around;
+            cursor: default;
+        }
+
+        .plus-form {
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .bg {
+            width: 100%;
+            height:  420px;
+            background-color: #d7d8da;
+            position: relative;
+
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+        .main-image {
+            width: 790px;
+            height: 420px;
+            background-image: url('https://s3.ap-northeast-2.amazonaws.com/materials.spartacodingclub.kr/pirates/web/lv2/header-image.png');
+            background-position: center;
+            background-size: cover;
+        }
+        h1 {
+            color: white;
+            position: absolute;
+            top: 50px;
+            left: 25%;
+        }
+        h2 {
+            margin: 16px 0px
+        }
+        .url-input {
+            width: 220px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: none;
+            background-color: rgb(242, 242, 242);
+            padding: 0px 8px;
+        }
+        .url-input:focus {
+            outline: 1px solid gray;
+        }
+        button {
+            width: 100px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid gray;
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .posting-btn {
+            background-color: black;
+            color: white;
+        }
+        @media screen and (max-width: 700px) {
+            .card {
+                margin: 16px auto;
+                width:220px;
+                height: 300px;
+            }
+            .card>span {
+                margin: 4px;
+            }
+            .card-title, .period, .tags {
+                font-size: 12px;
+            }
+        }
+    </style>
+    <script>
+        $(document).ready(() => {
+            showPlusForm();
+            listing();
+            now();
+        })
+
+        const showUrlForm = () => {
+            $('#url-form').show();
+            $('#plus-form').hide();
+        }
+        const showPlusForm = () => {
+            $('#url-form').hide();
+            $('#plus-form').show();
+        }
+        const posting = () => {
+            let url = $('#url').val();
+
+            let formData = new FormData()
+            formData.append("url_give", url)
+            fetch('/exhibit', {method: "POST", body: formData}).then(res => res.json()).then(data => {
+                alert(data['msg']);
+                window.location.reload();
+            })
+        }
+
+        const move = (url) => {
+            window.open(url,'_blank');
+        }
+
+        const listing = () => {
+            fetch('/exhibit').then(res => res.json()).then(data => {
+                let rows = data['exhibitions']
+                rows.forEach((row) => {
+                    let image = row['image']
+                    let title = row['title']
+                    let period = row['period']
+                    let tags = row['tags']
+                    let url = row['url']
+
+                    let temp_html = `<div class="card" onclick="move('${url}')">
+                                        <div class="card-image" style="background-image: url('${image}');"></div>
+                                        <span class="card-title">${title}</span>
+                                        <span class="period">${period}</span>
+                                        <span class="tags">${tags}</span>
+                                    </div>`
+                    $('#card-wrap').prepend(temp_html)
+                })
+            })
+        }
+
+        const now = () => {
+            fetch('/now').then(res => res.json()).then(data => {
+                let rows = data['now']
+                rows.forEach((row) => {
+                    let image = row['image']
+                    let title = row['title']
+                    let period = row['period']
+                    let url = row['url']
+
+                    let temp_html = `<div class="card" onclick="move('${url}')">
+                                        <div class="card-image" style="background-image: url('${image}');"></div>
+                                        <span class="card-title">${title}</span>
+                                        <span class="period">${period}</span>
+                                        <span class="tags"></span>
+                                    </div>`
+                    $('#card-now').prepend(temp_html)
+                })
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div class="bg">
+        <h1>오늘의<br/>전시</h1>
+        <div class="main-image"></div>
+    </div>
+    <div class="wrap">
+        <h2>내가 추가한 전시</h2>
+        <div id="card-wrap" class="card-wrap">
+            <div id="url-form" class="url-form card">
+                <input class="url-input" id="url" type="text">
+                <div>
+                    <button onclick="showPlusForm()">취소하기</button>
+                    <button class="posting-btn" onclick="posting()">등록하기</button>
+                </div>
+
+            </div>
+            <div id="plus-form" onclick="showUrlForm()" class="plus-form card">
+                <span>+</span>
+                <span>추가하기</span>
+            </div>
+        </div>
+        <h2>현재 진행중인 전시</h2>
+        <div id="card-now" class="card-wrap">
+
+        </div>
+    </div>
+
+</body>
+
+</html>
